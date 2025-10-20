@@ -1214,7 +1214,7 @@ define(function(require) {
 					appsList: _.sortBy(appsList, 'name')
 				};
 
-			if ($.isNumeric(templateData.account.created)) {
+			if (!isNaN(parseFloat(templateData.account.created)) && isFinite(templateData.account.created)) {
 				templateData.account.created = monster.util.toFriendlyDate(accountData.created, 'date');
 			}
 
