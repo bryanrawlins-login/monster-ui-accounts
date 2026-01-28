@@ -685,20 +685,20 @@ define(function(require) {
 						$createUserDiv = contentTemplate.find('.create-user-div'),
 						$adminElements = contentTemplate.find('.admin-element'),
 						$newAdminBtn = contentTemplate.find('#accountsmanager_new_admin_btn'),
-						$newAdminElem = contentTemplate.find('.new-admin-element');
+					$newAdminElem = contentTemplate.find('.new-admin-element');
 
-					contentTemplate.find('.close-admin-settings').click(function(e) {
-						e.preventDefault();
-						closeAdminsSetting();
-						e.stopPropagation();
-					});
+				contentTemplate.find('.close-admin-settings').on('click', function(e) {
+					e.preventDefault();
+					closeAdminsSetting();
+					e.stopPropagation();
+				});
 
-					contentTemplate.find('.new-admin-tabs a').click(function(e) {
-						e.preventDefault();
-						$(this).tab('show');
-					});
+				contentTemplate.find('.new-admin-tabs a').on('click', function(e) {
+					e.preventDefault();
+					$(this).tab('show');
+				});
 
-					$newAdminBtn.click(function(e) {
+				$newAdminBtn.on('click', function(e) {
 						e.preventDefault();
 						var $this = $(this);
 						if (!$this.hasClass('disabled')) {
@@ -714,13 +714,13 @@ define(function(require) {
 						} else {
 							e.stopPropagation();
 						}
-					});
+				});
 
-					$createUserDiv.find('input[name="extra.autogen_password"]').change(function(e) {
-						$(this).val() === 'true' ? $createUserDiv.find('.new-admin-password-div').slideUp() : $createUserDiv.find('.new-admin-password-div').slideDown();
-					});
+				$createUserDiv.find('input[name="extra.autogen_password"]').on('change', function(e) {
+					$(this).val() === 'true' ? $createUserDiv.find('.new-admin-password-div').slideUp() : $createUserDiv.find('.new-admin-password-div').slideDown();
+				});
 
-					contentTemplate.find('.admin-element-link.delete').click(function(e) {
+				contentTemplate.find('.admin-element-link.delete').on('click', function(e) {
 						e.preventDefault();
 						var $adminElement = $(this).closest('.admin-element'),
 							user = {
@@ -745,58 +745,58 @@ define(function(require) {
 								refreshAdminsHeader();
 							}
 						});
+				});
+
+				contentTemplate.find('.admin-element-link.edit').on('click', function(e) {
+					e.preventDefault();
+					var $adminElement = $(this).parent().parent();
+
+					contentTemplate.find('.admin-element-edit .admin-cancel-btn').click();
+
+					if ($newAdminBtn.hasClass('active')) {
+						$newAdminBtn.click();
+					}
+					$newAdminBtn.addClass('disabled');
+
+					$adminElement.find('.admin-element-display').hide();
+					$adminElement.find('.admin-element-edit').show();
+				});
+
+				$adminElements.each(function() {
+					var $adminElement = $(this),
+						userId = $adminElement.data('user_id'),
+						$adminPasswordDiv = $adminElement.find('.edit-admin-password-div');
+
+					monster.ui.showPasswordStrength($adminElement.find('input[name="password"]'), {
+						container: $adminElement.find('.password-strength-container'),
+						display: 'icon'
 					});
 
-					contentTemplate.find('.admin-element-link.edit').click(function(e) {
+					$adminPasswordDiv.hide();
+
+					$adminElement.find('.admin-cancel-btn').on('click', function(e) {
 						e.preventDefault();
-						var $adminElement = $(this).parent().parent();
-
-						contentTemplate.find('.admin-element-edit .admin-cancel-btn').click();
-
-						if ($newAdminBtn.hasClass('active')) {
-							$newAdminBtn.click();
-						}
-						$newAdminBtn.addClass('disabled');
-
-						$adminElement.find('.admin-element-display').hide();
-						$adminElement.find('.admin-element-edit').show();
+						$adminElement.find('input').each(function() {
+							$(this).val($(this).data('original_value'));
+						});
+						$adminElement.find('.admin-element-display').show();
+						$adminElement.find('.admin-element-edit').hide();
+						$newAdminBtn.removeClass('disabled');
 					});
 
-					$adminElements.each(function() {
-						var $adminElement = $(this),
-							userId = $adminElement.data('user_id'),
-							$adminPasswordDiv = $adminElement.find('.edit-admin-password-div');
-
-						monster.ui.showPasswordStrength($adminElement.find('input[name="password"]'), {
-							container: $adminElement.find('.password-strength-container'),
-							display: 'icon'
-						});
-
-						$adminPasswordDiv.hide();
-
-						$adminElement.find('.admin-cancel-btn').click(function(e) {
-							e.preventDefault();
-							$adminElement.find('input').each(function() {
-								$(this).val($(this).data('original_value'));
+					$adminElement.find('input[name="email"]').on('change', function() { $(this).keyup(); });
+					$adminElement.find('input[name="email"]').on('keyup', function(e) {
+						var $this = $(this);
+						if ($this.val() !== $this.data('original_value')) {
+							$adminPasswordDiv.slideDown();
+						} else {
+							$adminPasswordDiv.slideUp(function() {
+								$adminPasswordDiv.find('input[type="password"]').val('');
 							});
-							$adminElement.find('.admin-element-display').show();
-							$adminElement.find('.admin-element-edit').hide();
-							$newAdminBtn.removeClass('disabled');
-						});
+						}
+					});
 
-						$adminElement.find('input[name="email"]').change(function() { $(this).keyup(); });
-						$adminElement.find('input[name="email"]').keyup(function(e) {
-							var $this = $(this);
-							if ($this.val() !== $this.data('original_value')) {
-								$adminPasswordDiv.slideDown();
-							} else {
-								$adminPasswordDiv.slideUp(function() {
-									$adminPasswordDiv.find('input[type="password"]').val('');
-								});
-							}
-						});
-
-						$adminElement.find('.admin-save-btn').click(function(e) {
+					$adminElement.find('.admin-save-btn').on('click', function(e) {
 							e.preventDefault();
 							var form = $adminElement.find('form'),
 								formData = monster.ui.getFormData(form[0]);
@@ -834,14 +834,14 @@ define(function(require) {
 								});
 							}
 						});
-					});
+				});
 
-					$newAdminElem.find('.admin-cancel-btn').click(function(e) {
-						e.preventDefault();
-						$newAdminBtn.click();
-					});
+				$newAdminElem.find('.admin-cancel-btn').on('click', function(e) {
+					e.preventDefault();
+					$newAdminBtn.click();
+				});
 
-					$newAdminElem.find('.admin-add-btn').click(function(e) {
+				$newAdminElem.find('.admin-add-btn').on('click', function(e) {
 						e.preventDefault();
 						if ($newAdminElem.find('.tab-pane.active').hasClass('create-user-div')) {
 							var formData = monster.ui.getFormData('accountsmanager_add_admin_form'),
@@ -1214,7 +1214,7 @@ define(function(require) {
 					appsList: _.sortBy(appsList, 'name')
 				};
 
-			if ($.isNumeric(templateData.account.created)) {
+			if (!isNaN(parseFloat(templateData.account.created)) && isFinite(templateData.account.created)) {
 				templateData.account.created = monster.util.toFriendlyDate(accountData.created, 'date');
 			}
 
@@ -1244,14 +1244,14 @@ define(function(require) {
 						selectedTab: 'tab-carrier'
 					});
 				}
-			});
+		});
 
-			contentTemplate.find('.account-tabs a').click(function(e) {
-				e.preventDefault();
-				if (!$(this).parent().hasClass('disabled')) {
-					closeTabsContent();
-					$(this).tab('show');
-				}
+		contentTemplate.find('.account-tabs a').on('click', function(e) {
+			e.preventDefault();
+			if (!$(this).parent().hasClass('disabled')) {
+				closeTabsContent();
+				$(this).tab('show');
+			}
 			});
 
 			contentTemplate.find('li.settings-item .settings-link').on('click', function(e) {
@@ -1409,14 +1409,14 @@ define(function(require) {
 
 			notesTab.find('div.dropdown-menu input')
 					.on('click', function() {
-						return false;
-					})
-					.change(function() {
-						$(this).parents('div.dropdown-menu').siblings('a.dropdown-toggle').dropdown('toggle');
-					})
-					.keydown('esc', function() {
-						this.value = '';
-						$(this).change();
+					return false;
+				})
+				.on('change', function() {
+					$(this).parents('div.dropdown-menu').siblings('a.dropdown-toggle').dropdown('toggle');
+				})
+				.keydown('esc', function() {
+					this.value = '';
+					$(this).change();
 					}
 			);
 			monster.ui.wysiwyg(notesTab.find('.wysiwyg-container.notes')).html(accountData.custom_notes);
@@ -1744,14 +1744,14 @@ define(function(require) {
 				monster.ui.dialog(template, {
 					title: self.i18n.active().updateCreditDialog.title
 				});
-			});
+		});
 
-			parent.find('#accountsmanager_limits_save').click(function(e) {
-				e.preventDefault();
+		parent.find('#accountsmanager_limits_save').on('click', function(e) {
+			e.preventDefault();
 
-				var newTwowayValue = twowayTrunksDiv.find('.slider-div').slider('value'),
-					newInboundValue = inboundTrunksDiv.find('.slider-div').slider('value'),
-					newOutboundValue = outboundTrunksDiv.find('.slider-div').slider('value'),
+			var newTwowayValue = twowayTrunksDiv.find('.slider-div').slider('value'),
+				newInboundValue = inboundTrunksDiv.find('.slider-div').slider('value'),
+				newOutboundValue = outboundTrunksDiv.find('.slider-div').slider('value'),
 					callRestrictions = monster.ui.getFormData('accountsmanager_callrestrictions_form').limits.call_restriction,
 					allowPrepay = tabContentTemplate.find('.allow-prepay-ckb').is(':checked');
 
@@ -1933,13 +1933,13 @@ define(function(require) {
 
 			parent.find('#accountsmanager_uirestrictions_form').append(tabContentTemplate);
 
-			monster.ui.tooltips(parent);
+		monster.ui.tooltips(parent);
 
-			parent.find('#accountsmanager_uirestrictions_save').click(function(event) {
-				event.preventDefault();
+		parent.find('#accountsmanager_uirestrictions_save').on('click', function(event) {
+			event.preventDefault();
 
-				var uiRestrictions = monster.ui.getFormData('accountsmanager_uirestrictions_form').account,
-					restrictionsList = ['account', 'balance', 'billing', 'inbound', 'outbound', 'service_plan', 'transactions', 'user'];
+			var uiRestrictions = monster.ui.getFormData('accountsmanager_uirestrictions_form').account,
+				restrictionsList = ['account', 'balance', 'billing', 'inbound', 'outbound', 'service_plan', 'transactions', 'user'];
 
 				if (accountData.hasOwnProperty('ui_restrictions')) {
 					restrictionsList.forEach(function(element) {
